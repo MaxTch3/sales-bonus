@@ -30,7 +30,7 @@ function calculateBonusByProfit(index, total, seller) {
   } else if (index >= total - 1) {
     return profit * 0.05;
   }
-  return;
+  return 0;
 }
 
 /**
@@ -114,15 +114,14 @@ function analyzeSalesData(data, options) {
     return {
       seller_id: seller.seller_id,
       name: seller.name,
-      revenue: seller.revenue,
-      profit: seller.profit,
-      bonus: seller.bonus || 0,
+      revenue: Number(seller.revenue.toFixed(2)),
+      profit: Number(seller.profit.toFixed(2)),
+      bonus: Number((seller.bonus || 0).toFixed(2)),
       sales_count: seller.sales_count,
       top_products: Object.entries(seller.products_sold)
         .sort((a, b) => b[1] - a[1])
-        .slice(0, 3)
-        .map(([sku, count]) => ({ sku, count })),
-      products_sold: seller.products_sold,
+        .slice(0, 10)
+        .map(([sku, quantity]) => ({ sku, quantity })),
     };
   });
   return result;
