@@ -27,7 +27,7 @@ function calculateBonusByProfit(index, total, seller) {
     return profit * 0.15;
   } else if (index === 1 || index === 2) {
     return profit * 0.1;
-  } else if (index >= total - 1) {
+  } else if (index < total - 1) {
     return profit * 0.05;
   }
   return 0;
@@ -50,8 +50,19 @@ function analyzeSalesData(data, options) {
     throw new Error("Неверный формат входных данных");
   }
   // @TODO: Проверка наличия опций
+  if (arguments.length < 2) {
+    throw new Error("Отсутствуют опции");
+  }
   if (!options || typeof options !== "object") {
     throw new Error("Неверныe или отсутствующие опции");
+  }
+
+  const { calculateRevenue, calculateBonus } = options;
+  if (typeof calculateRevenue !== "function") {
+    throw new Error("Опция должна быть функцией");
+  }
+  if (typeof calculateBonus !== "function") {
+    throw new Error("Опция должна быть функцией");
   }
   // @TODO: Подготовка промежуточных данных для сбора статистики
   const allPurchases = [];
@@ -88,7 +99,9 @@ function analyzeSalesData(data, options) {
         profit: 0,
         sales_count: 0,
         products_sold: {},
-        name: `${sellerInfo.first_name || ''} ${sellerInfo.last_name || ''}`.trim(),
+        name: `${sellerInfo.first_name || ""} ${
+          sellerInfo.last_name || ""
+        }`.trim(),
       });
     }
     const stats = sellersStats.get(seller_id);
