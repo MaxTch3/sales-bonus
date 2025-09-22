@@ -115,9 +115,10 @@ if (data.sellers.length === 0) {
       });
     }
     const stats = sellersStats.get(seller_id);
-    stats.revenue += revenue;
-    stats.profit += profit;
-    stats.sales_count += quantity;
+    // stats.revenue += revenue;
+    stats.revenue = +((Math.round(stats.revenue * 100) + Math.round(revenue * 100)) / 100).toFixed(2);
+    stats.profit = +((Math.round(stats.profit * 100) + Math.round(profit * 100)) /100).toFixed(2);
+    stats.sales_count += 1;
     stats.products_sold[sku] = (stats.products_sold[sku] || 0) + quantity;
   }
   // @TODO: Сортировка продавцов по прибыли
