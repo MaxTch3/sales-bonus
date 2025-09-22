@@ -49,7 +49,7 @@ function analyzeSalesData(data, options) {
   ) {
     throw new Error("Неверный формат входных данных");
   }
-if (data.sellers.length === 0) {
+  if (data.sellers.length === 0) {
     throw new Error("Нет данных о продавцах");
   }
   if (data.products.length === 0) {
@@ -75,13 +75,7 @@ if (data.sellers.length === 0) {
     throw new Error("Опция должна быть функцией");
   }
   // @TODO: Подготовка промежуточных данных для сбора статистики
-  const allPurchases = [];
-  for (const record of data.purchase_records) {
-    const { seller_id, items } = record;
-    for (const item of items) {
-      allPurchases.push({ seller_id, ...item });
-    }
-  }
+  
   // @TODO: Индексация продавцов и товаров для быстрого доступа
 
   const sellersById = new Map();
@@ -95,15 +89,10 @@ if (data.sellers.length === 0) {
   }
   // @TODO: Расчет выручки и прибыли для каждого продавца
   const sellersStats = new Map();
-  for (const purchase of allPurchases) {
-    const { seller_id, sku, quantity } = purchase;
-    const product = productsBySku.get(sku);
-    if (!product) continue;
-    const revenue = calculateSimpleRevenue(purchase, product);
-    const cost = product.purchase_price * quantity;
-    const profit = revenue - cost;
+  for (const record of data.purchase_records) {
+    const { seller_id, receipt_id, items } = record;
+    const sellerInfo = sellersById.get(seller_id) || {};
     if (!sellersStats.has(seller_id)) {
-      const sellerInfo = sellersById.get(seller_id) || {};
       sellersStats.set(seller_id, {
         revenue: 0,
         profit: 0,
@@ -115,11 +104,43 @@ if (data.sellers.length === 0) {
       });
     }
     const stats = sellersStats.get(seller_id);
-    // stats.revenue += revenue;
-    stats.revenue = +((Math.round(stats.revenue * 100) + Math.round(revenue * 100)) / 100).toFixed(2);
-    stats.profit = +((Math.round(stats.profit * 100) + Math.round(profit * 100)) /100).toFixed(2);
     stats.sales_count += 1;
-    stats.products_sold[sku] = (stats.products_sold[sku] || 0) + quantity;
+
+    for (const item of items) {
+      const { sku, quantity } = item;
+      const product = productsBySku.get(sku);
+      if (!product) continue;
+      const revenue = calculateRevenue(item, product);
+      const cost = product.purchase_price * quantity;
+      const profit = revenue - cost;
+      stats.revenue += revenue;
+      stats.profit += profit;
+      stats.products_sold[sku] = (stats.products_sold[sku] || 0) + quantity;
+    }
+
+    // const product = productsBySku.get(sku);
+    // if (!product) continue;
+    // const revenue = calculateSimpleRevenue(purchase, product);
+    // const cost = product.purchase_price * quantity;
+    // const profit = revenue - cost;
+    // if (!sellersStats.has(seller_id)) {
+    //   const sellerInfo = sellersById.get(seller_id) || {};
+    //   sellersStats.set(seller_id, {
+    //     revenue: 0,
+    //     profit: 0,
+    //     sales_count: 0,
+    //     products_sold: {},
+    //     _receipts: new Set(),
+    //     name: `${sellerInfo.first_name || ""} ${
+    //       sellerInfo.last_name || ""
+    //     }`.trim(),
+    //   });
+    // }
+    // // const stats = sellersStats.get(seller_id);
+    // stats.revenue += revenue;
+    // stats.profit += profit;
+    // stats.sales_count += 1;
+    // stats.products_sold[sku] = (stats.products_sold[sku] || 0) + quantity;
   }
   // @TODO: Сортировка продавцов по прибыли
 
