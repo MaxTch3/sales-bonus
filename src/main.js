@@ -49,6 +49,16 @@ function analyzeSalesData(data, options) {
   ) {
     throw new Error("Неверный формат входных данных");
   }
+if (data.sellers.length === 0) {
+    throw new Error("Нет данных о продавцах");
+  }
+  if (data.products.length === 0) {
+    throw new Error("Нет данных о товарах");
+  }
+  if (data.purchase_records.length === 0) {
+    throw new Error("Нет данных о продажах");
+  }
+
   // @TODO: Проверка наличия опций
   if (arguments.length < 2) {
     throw new Error("Отсутствуют опции");
