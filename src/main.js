@@ -105,6 +105,7 @@ function analyzeSalesData(data, options) {
     }
     const stats = sellersStats.get(seller_id);
     stats.sales_count += 1;
+    stats.revenue += record.total_amount;
 
     for (const item of items) {
       const { sku, quantity } = item;
@@ -113,7 +114,7 @@ function analyzeSalesData(data, options) {
       const revenue = calculateRevenue(item, product);
       const cost = product.purchase_price * quantity;
       const profit = revenue - cost;
-      stats.revenue += revenue;
+      
       stats.profit += profit;
       stats.products_sold[sku] = (stats.products_sold[sku] || 0) + quantity;
     }
